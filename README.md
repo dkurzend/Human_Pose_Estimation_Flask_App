@@ -51,7 +51,7 @@ The `requirements.txt` file includes the cpu version of pytorch. If your compute
 |    Speed on GPU**    	|    **0.03 sec (33.3 fps)****    	|   **0.06 sec (16.67 fps)****  	|
 
 <h6>*System: Laptop with i7-10750H CPU and GeForce RTX 2060 GPU </h6>
-<h6>**System: Desktop with  i9-9900K CPU and GeForce RTX 2080 GPU <br></h6>
+<h6>**System: Desktop with  i9-9900K CPU and GeForce RTX 2080 GPU </h6>
 
 <br>
 
