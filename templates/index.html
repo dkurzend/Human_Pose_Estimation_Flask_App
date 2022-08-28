@@ -1,0 +1,210 @@
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+        <title>Human Pose Estimation</title>
+
+        <!-- Bootstrap CSS -->
+        <!-- CSS only -->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-gH2yIJqKdNHPEq0n4Mqa/HGKIhSkIHeL5AyhkYV8i59U5AR6csBvApHHNl/vI1Bx" crossorigin="anonymous">
+
+    </head>
+
+
+    <body>
+
+        <div class="container">
+            <div class="row justify-content-center">
+                <div class="col-lg-3 col-md-6"></div>
+                <div class="col-lg-6 col-md-12">
+        <h1>Human Pose Estimation </h1>
+
+        <div>
+            <img src="{{ url_for('video_feed') }}" style="border: 2px solid grey;">
+        </div>
+
+
+        <div style="margin-top: 5px; margin-bottom: 5px">
+            <div class="btn-group" role="group" aria-label="Basic radio toggle button group" style="margin-right:5px">
+                <input type="radio" class="btn-check" name="btnradio" id="skeletonButton" autocomplete="off" checked>
+                <label class="btn btn-outline-primary" for="skeletonButton">Skeleton</label>
+
+                <input type="radio" class="btn-check" name="btnradio" id="labelButton" autocomplete="off">
+                <label class="btn btn-outline-primary" for="labelButton">Labels</label>
+
+                <input type="radio" class="btn-check" name="btnradio" id="skeletonLabelButton" autocomplete="off">
+                <label class="btn btn-outline-primary" for="skeletonLabelButton">Skeleton and Labels</label>
+              </div>
+
+
+
+              <div class="btn-group" role="group" aria-label="Basic radio toggle button group"style="margin-right:5px">
+                <input type="radio" class="btn-check" name="btnradio2" id="cpuButton" autocomplete="off" checked>
+                <label class="btn btn-outline-primary" for="cpuButton">CPU</label>
+
+                <input type="radio" class="btn-check" name="btnradio2" id="gpuButton" autocomplete="off">
+                <label class="btn btn-outline-primary" for="gpuButton">GPU</label>
+              </div>
+
+
+
+              <div class="btn-group" role="group" aria-label="Basic radio toggle button group">
+                <input type="radio" class="btn-check" name="btnradio3" id="sgscButton" autocomplete="off" checked>
+                <label class="btn btn-outline-primary" for="sgscButton">SGSC</label>
+
+                <input type="radio" class="btn-check" name="btnradio3" id="shgButton" autocomplete="off">
+                <label class="btn btn-outline-primary" for="shgButton">SHG</label>
+              </div>
+
+        </div>
+
+
+        <div>
+            <span><h4 id="speedDisplay">Time: </h4></span>
+        </div>
+
+        <div class="slidecontainer" style="align: center">
+            <input type="range" class="form-range" min="0" max="1" step="0.05" id="thresholdSlider" value="0.2">
+            <p>Threshold: <span id="thresholdValue"></span></p>
+        </div>
+
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-A3rJD856KowSb7dwlZdYEkO39Gagi7vIsF0jrRAoQmDKKtQBHUuLZ9AsSv4jD4Xa" crossorigin="anonymous"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+        </div>
+            <div class="col-lg-3 col-md-6"></div>
+            </div>
+        </div>
+    </body>
+
+    <script>
+        var seconds;
+        const interval = setInterval(function() {
+            seconds = getModelPerformance();
+        }, 5000);
+
+
+        var cuda_available = '{{ has_gpu }}';
+        if (cuda_available == false){
+            document.querySelector('#cpuButton').disabled = true;
+            document.querySelector('#gpuButton').disabled = true;
+        }
+
+        var slider = document.getElementById("thresholdSlider");
+        var output = document.getElementById("thresholdValue");
+        output.innerHTML = slider.value;
+
+        slider.oninput = function() {
+            output.innerHTML = this.value;
+        }
+
+        $(document).ready(function(){
+            var threshold_value;
+            $("#thresholdSlider").on("change", function(){
+                threshold_value = $(this).val();
+                $.ajax({
+                    type : 'POST',
+                    url : "{{url_for('set_threshold')}}",
+                    contentType: 'application/json;charset=UTF-8',
+                    data : JSON.stringify({'data': threshold_value})
+                });
+            });
+            var mode;
+            $("#skeletonButton").on("click", function(){
+                mode = 0;
+                modeEndpoint(mode);
+            });
+            $("#labelButton").on("click", function(){
+                mode = 1;
+                modeEndpoint(mode);
+            });
+            $("#skeletonLabelButton").on("click", function(){
+                mode = 2;
+                modeEndpoint(mode);
+            });
+
+
+            var use_gpu = false;
+            $("#cpuButton").on("click", function(){
+                use_gpu = false;
+                gpuEndpoint(use_gpu);
+                seconds = getModelPerformance();
+            });
+            $("#gpuButton").on("click", function(){
+                use_gpu = true;
+                gpuEndpoint(use_gpu);
+                seconds = getModelPerformance();
+            });
+
+            var new_model;
+            $("#sgscButton").on("click", function(){
+                new_model = 'SGSC';
+                modelEndpoint(new_model);
+                seconds = getModelPerformance();
+            });
+            $("#shgButton").on("click", function(){
+                new_model = 'SHG';
+                modelEndpoint(new_model);
+                seconds = getModelPerformance();
+            });
+
+
+        });
+
+
+
+        function modeEndpoint(mode){
+            $.ajax({
+                type : 'POST',
+                url : "{{url_for('set_mode')}}",
+                contentType: 'application/json;charset=UTF-8',
+                data : JSON.stringify({'data': mode})
+            });
+
+        };
+
+
+        function gpuEndpoint(use_gpu){
+            $.ajax({
+                type : 'POST',
+                url : "{{url_for('set_cuda')}}",
+                contentType: 'application/json;charset=UTF-8',
+                data : JSON.stringify({'data': use_gpu})
+            });
+
+        };
+
+
+        function modelEndpoint(new_model){
+            $.ajax({
+                type : 'POST',
+                url : "{{url_for('set_model')}}",
+                contentType: 'application/json;charset=UTF-8',
+                data : JSON.stringify({'data': new_model})
+            });
+
+        };
+
+
+
+        function getModelPerformance(){
+            $.ajax({
+                type : 'GET',
+                url : "{{url_for('get_performance')}}",
+                contentType: 'application/json;charset=UTF-8',
+                success: function(response){
+                    s = response['speed'].toFixed(2);
+                    $('#speedDisplay').text('Time: ' + s + ' sec (' + (1/s).toFixed(2) + ' fps)');
+                    return s;
+                }
+            });
+
+        };
+
+
+
+    </script>
+</html>
