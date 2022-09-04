@@ -36,6 +36,11 @@ This repository contains the flask application to test the models from [Soft_Gat
 
 4. Download the models and put them into the `models` folder ([soft-gated skip connections](https://matix.li/4704c467c50a), [stacked hourglass](https://matix.li/9680ec1eb999)). You have to download both models.
 
+5. Start the flask app
+    ```
+    python app.py
+    ```
+
 
 The `requirements.txt` file includes the cpu version of pytorch. If your computer/laptop has a gpu available feel free to change the pytorch version to one including cuda (tested with cuda version 11.6). If cuda is available, you will be able to switch between gpu and cpu in the application.
 
