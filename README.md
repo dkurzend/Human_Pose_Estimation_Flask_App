@@ -50,10 +50,10 @@ The `requirements.txt` file includes the cpu version of pytorch. If your compute
 |                      	| **Soft-Gated Skip Connections** 	| **Stacked Hourglass Network** 	|
 |:--------------------:	|:-------------------------------:	|:-----------------------------:	|
 | Number of Parameters 	|             13.6 Mio            	|            32.8 Mio           	|
-|     Speed on CPU*    	|       0.54 sec (1.89 fps)*      	|      0.97 sec (1.04 fps)*     	|
-|     Speed on GPU*    	|       0.09 sec (11.1 fps)*      	|      0.18 sec (5.56 fps)*     	|
-|    Speed on CPU**    	|      0.24 sec (4.17 fps)**      	|     0.42 sec (2.38 fps)**     	|
-|    Speed on GPU**    	|    **0.03 sec (33.3 fps)****    	|   **0.06 sec (16.67 fps)****  	|
+|     Speed on CPU*    	|       0.29 sec (3.45 fps)      	|      0.56 sec (1.79 fps)    	|
+|     Speed on GPU*    	|       0.04 sec (25 fps)       	|      0.07 sec (14.29 fps)     	|
+|    Speed on CPU**    	|      0.24 sec (4.17 fps)      	|     0.42 sec (2.38 fps)     	|
+|    Speed on GPU**    	|    **0.03 sec (33.3 fps)**   	|   **0.06 sec (16.67 fps)** 	|
 
 <h6>*System: Laptop with i7-10750H CPU and GeForce RTX 2060 GPU </h6>
 <h6>**System: Desktop with  i9-9900K CPU and GeForce RTX 2080 GPU </h6>
